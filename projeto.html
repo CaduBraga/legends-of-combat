@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Luta - Turnos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lato', Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0; /* Remove margens padrão */
+            height: 100vh; /* Altura total da tela */
+            overflow: hidden; /* Impede rolagem */
+            position: relative; /* Para posicionar elementos filhos */
+        }
+
+        #inicioImagem {
+            position: absolute; /* Para sobrepor ao fundo */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://chat.google.com/u/0/api/get_attachment_url?url_type=FIFE_URL&content_type=image%2Fjpeg&attachment_token=AOo0EEUCMgWvlEqwi9RhxBKXFyAd8kC5YHOiQccgO3wM24cpw2dpyetos9HooQvwheUHpze%2FDN9bQZr8O%2FyrpuwWGYhtg7EpnlqpCi8zhd56HP1rV7RC5rrQ86oI7gIB3L7v5BwWgIPGeHaSgpnDattQgNFA6dc9Y7qxOoeQe27F4g3%2BAN%2FnXfVW%2FCc%2B5umroCZcNSEP8QVMuVMfF0QlV%2BDfCaf%2F%2FqB05In3vOFhWh4ogMZ4ZqmoeF54OEyevBhm2xcenqgnYQxZXd9qz3dIb17Y0ek59G3SgqvI%2FYx0qy9roQavKQFCGfz%2Fvzxs2YI%2B1WtNEb8G9hwVmCWw7rTVJMw3T59oH7ocYdR1flUBQ%2B%2B8kMCeNdOoi9m79WbwEXHaTvM2J0Fj%2BrP2rfv%2FcAkx8IRoRX%2Bt6WCrwJk%2FgSbE3nPf5x3DcX3RuhhlErMYV29j7%2BJuwBDBNeMQUPJlc%2BYcQPJGufeXWdGFik3x1rM%2FJcfeeIb6d8KA%2FUgk78NCagr%2BbiGl6chWDgUrZfiFVJlVPAwLcuS6dH0X5PCs3ni2d9xEjSxxrHp%2FrnH%2BA920c7U%2B3D2O%2FbAovMVTCxs1sV2JjMTWwSfaODCrvWv8zRuRPjkq%2FBrZdI76HDlAAlmpvmy92QnhCRYAVbj8%2FTOjAprENDi2oqQFm%2FMxNmxK%2FMPg62bBS%2FwdCIhvfFV0gIq4iZ70ViLgBPyN2nJ8xj%2BuG2rxsJFOVEGAniGMXjRoJqThyfSnS0IiOHqzIx%2Fh397n%2FykpOywjF4EHaMoUr7%2B%2FjhvdLYNATa894cR6R4ImF3e%2BDVBDbra24pvAU8CIvxSlQlkCh2ajSQArVRdHoUM%3D&sz=w1432-h774'); /* Substitua pelo URL da sua imagem */
+            background-size: cover; /* Faz a imagem cobrir toda a tela */
+            background-position: center; /* Centraliza a imagem */
+            z-index: 0; /* Coloca a imagem atrás do conteúdo */
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Adiciona um overlay escuro */
+            z-index: 1; /* Coloca o overlay acima da imagem */
+        }
+
+        .inicio-texto {
+            position: relative; /* Para que fiquem acima da imagem */
+            z-index: 2; /* Coloca o texto acima da imagem e do overlay */
+            color: rgb(111, 0, 255); /* Cor do texto para melhor contraste na tela inicial */
+            margin: 0; /* Remove margens padrão */
+            padding: 10px; /* Adiciona um pouco de espaço ao redor do texto */
+        }
+
+        .jogo-texto {
+            position: relative; /* Para que fiquem acima da imagem */
+            z-index: 2; /* Coloca o texto acima da imagem e do overlay */
+            color: black; /* Cor do texto para a tela de jogo */
+            margin: 0; /* Remove margens padrão */
+            padding: 10px; /* Adiciona um pouco de espaço ao redor do texto */
+        }
+
+        #startBtnContainer {
+            position: relative; /* Para que o botão fique acima da imagem */
+            z-index: 2; /* Coloca o botão acima da imagem e do overlay */
+            margin-top: 20px; /* Margem para o botão */
+        }
+
+        #startBtn {
+            padding: 15px 30px; /* Aumenta o tamanho do botão */
+            font-size: 20px;
+            cursor: pointer;
+            background-color: rgb(111, 0, 255);
+            color: white;
+            border-radius: 8px;
+            border: none; /* Remove borda padrão */
+            transition: background-color 0.3s;
+        }
+
+        #startBtn:hover {
+            background-color: rgba(111, 0, 255, 0.308);
+        }
+
+        /* Estilos para o jogo */
+        #gameContainer {
+            display: none; /* Inicialmente oculto */
+            margin-top: 20px;
+        }
+
+        .personagem {
+            width: 200px;
+            height: 320px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .status {
+            margin: 5px;
+            padding: 20px;
+            background-color: #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #gameArea {
+            width: 600px;
+            height: 400px;
+            margin: 20px auto;
+            border: 3px solid black;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #personagem1 {
+            position: absolute;
+            left: 30px;
+            bottom: 70px;
+        }
+
+        #personagem2 {
+            position: absolute;
+            right: 30px;
+            bottom: 70px;
+        }
+
+        .personagem-opcao {
+            display: inline-block;
+            margin: 19px;
+            cursor: pointer;
+        }
+
+        .personagem-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .personagem-opcao:hover .personagem-img {
+            transform: scale(1.1);
+        }
+
+        .choose-btn-container {
+            margin-top: 20px;
+        }
+
+        .choose-btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            background-color: #0066cc;
+            color: white;
+            transition: background-color 0.3s;
+            width: 200px;
+            text-align: left;
+        }
+
+        .choose-btn:hover {
+            background-color: #0055a0;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+        }
+
+        #actionContainer {
+            display: none;
+        }
+
+        /* Estilo para a imagem pequena no canto */
+        #smallImage {
+            position: absolute;
+            top: 10px; /* Distância do topo */
+            right: 10px; /* Distância da direita */
+            width: 50px; /* Largura da imagem */
+            height: auto; /* Altura automática para manter a proporção */
+            z-index: 3; /* Coloca a imagem acima de outros elementos */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="inicioImagem"></div>
+    <div id="overlay"></div>
+
+    <h1 class="inicio-texto">Legends of Combat</h1>
+    <p class="inicio-texto">Escolha o personagem e o item para iniciar o combate!</p>
+
+    <!-- Adicionando a música de fundo -->
+    <audio id="music" loop>
+        <source src="musica.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <div id="startBtnContainer">
+        <button id="startBtn" onclick="iniciarJogo()">Iniciar Jogo</button>
+    </div>
+
+    <div id="gameContainer">
+        <div class="choose-btn-container" id="choosePlayer1">
+            <h2 class="jogo-texto">Jogador 1: Escolha seu personagem</h2>
+            <div class="personagem-opcao" onclick="escolherPersonagem(1, 'Mago')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-mago-clash-3d-wizard.png" alt="Mago" class="personagem-img">
+                <p>Mago</p>
+            </div>
+            <div class="personagem-opcao" onclick="escolherPersonagem(1, 'Bárbaro')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/barbaro-clash.png" alt="Bárbaro" class="personagem-img">
+                <p>Bárbaro</p>
+            </div>
+            <div class="personagem-opcao" onclick="escolherPersonagem(1, 'Gigante')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-do-gigante-no-clash-royale-render-giant.png" alt="Gigante" class="personagem-img">
+                <p>Gigante</p>
+            </div>
+        </div>
+
+        <div class="choose-btn-container" id="chooseItem" style="display: none;">
+            <h2 class="jogo-texto">Jogador 1: Escolha um item</h2>
+            <div id="itemOptions1"></div>
+        </div>
+
+        <div class="choose-btn-container" id="choosePlayer2" style="display: none;">
+            <h2 class="jogo-texto">Jogador 2: Escolha seu personagem</h2>
+            <div class="personagem-opcao" onclick="escolherPersonagem(2, 'Mago')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-mago-clash-3d-wizard.png" alt="Mago" class="personagem-img">
+                <p>Mago</p>
+            </div>
+            <div class="personagem-opcao" onclick="escolherPersonagem(2, 'Bárbaro')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/barbaro-clash.png" alt="Bárbaro" class="personagem-img">
+                <p>Bárbaro</p>
+            </div>
+            <div class="personagem-opcao" onclick="escolherPersonagem(2, 'Gigante')">
+                <img src="https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-do-gigante-no-clash-royale-render-giant.png" alt="Gigante" class="personagem-img">
+                <p>Gigante</p>
+            </div>
+        </div>
+
+        <div class="choose-btn-container" id="chooseItem2" style="display: none;">
+            <h2 class="jogo-texto">Jogador 2: Escolha um item</h2>
+            <div id="itemOptions2"></div>
+        </div>
+
+        <div class="status" id="status1">Jogador 1 - Vida: 100 | Ataque: 25</div>
+        <div class="status" id="status2">Jogador 2 - Vida: 120 | Ataque: 30</div>
+
+        <div id="gameArea">
+            <div id="personagem1" class="personagem"></div>
+            <div id="personagem2" class="personagem"></div>
+        </div>
+
+        <div class="btn-container" id="actionContainer">
+            <h2 id="currentPlayer" class="jogo-texto">Rodada: Jogador 1</h2>
+            <button onclick="realizarAcao('atacar', jogadorAtual)">Atacar</button>
+            <button onclick="realizarAcao('curar', jogadorAtual)">Curar</button>
+        </div>
+    </div>
+
+    <!-- Imagem pequena no canto da tela -->
+    <img id="smallImage" src="https://example.com/sua-imagem-pequena.png" alt="Imagem Pequena" />
+
+    <script>
+        class Personagem {
+            constructor(tipo, vida, ataque, imagem) {
+                this.tipo = tipo;
+                this.vida = vida;
+                this.ataque = ataque;
+                this.imagem = imagem;
+                this.danoReduzido = 1;
+            }
+
+            reduzirVida(dano) {
+                this.vida -= dano * this.danoReduzido;
+                if (this.vida < 0) this.vida = 0;
+            }
+
+            estaVivo() {
+                return this.vida > 0;
+            }
+
+            curar() {
+                this.vida += 10; // Cura 10 pontos de vida
+                if (this.vida > 150) this.vida = 150; // Limite máximo de vida
+            }
+        }
+
+        let jogador1, jogador2;
+        let itemEscolhido1, itemEscolhido2;
+        let jogadorAtual = 1;
+
+        function iniciarJogo() {
+            // Iniciar música ao clicar no botão
+            document.getElementById("music").play();
+           
+            document.getElementById("startBtnContainer").style.display = "none";
+            document.getElementById("inicioImagem").style.display = "none"; // Oculta a imagem ao iniciar o jogo
+            document.getElementById("overlay").style.display = "none"; // Oculta o overlay ao iniciar o jogo
+            document.getElementById("gameContainer").style.display = "block";
+            document.getElementById("choosePlayer1").style.display = "block";
+
+            // Altera a cor do texto para preto na tela de jogo
+            document.querySelectorAll(".jogo-texto").forEach(element => {
+                element.style.color = "black";
+            });
+        }
+
+        function escolherPersonagem(jogador, tipo) {
+            let personagem;
+            let imagem;
+
+            if (tipo === "Mago") {
+                personagem = new Personagem("Mago", 100, 25, "https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-mago-clash-3d-wizard.png");
+                mostrarItensMago(jogador);
+            } else if (tipo === "Bárbaro") {
+                personagem = new Personagem("Bárbaro", 120, 30, "https://www.clashroyaledicas.com/wp-content/uploads/2016/02/barbaro-clash.png");
+                mostrarItensBarbaro(jogador);
+            } else if (tipo === "Gigante") {
+                personagem = new Personagem("Gigante", 150, 20, "https://www.clashroyaledicas.com/wp-content/uploads/2016/02/tropa-do-gigante-no-clash-royale-render-giant.png");
+                mostrarItensGigante(jogador);
+            }
+
+            if (jogador === 1) {
+                jogador1 = personagem;
+                document.getElementById("choosePlayer1").style.display = "none";
+                document.getElementById("chooseItem").style.display = "block";
+            } else {
+                jogador2 = personagem;
+                atualizarStatus();
+                document.getElementById("choosePlayer2").style.display = "none";
+                document.getElementById("chooseItem2").style.display = "block";
+            }
+
+            // Adiciona a imagem do personagem ao campo de batalha
+            document.getElementById("personagem" + jogador).style.backgroundImage = `url(${personagem.imagem})`;
+            document.getElementById("personagem" + jogador).style.backgroundSize = "cover";
+            document.getElementById("personagem" + jogador).style.backgroundPosition = "center";
+        }
+
+        function mostrarItensMago(jogador) {
+            const itemOptions = `
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Cajado do Inferno')">
+                    <img src="https://gamepedia.cursecdn.com/lolesports_gamepedia_en/f/fe/Needlessly_Large_Rod.png" alt="Cajado do Inferno" class="item-img">
+                    <p>Cajado do Inferno 🔥🌀<br>Efeito: +9 de ataque, +4 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Manto Arcano')">
+                    <img src="https://th.bing.com/th/id/OIP.48S17ugZb7LC_JhvxdIc5gAAAA?rs=1&pid=ImgDetMain" alt="Manto Arcano" class="item-img">
+                    <p>Manto Arcano 🌟🔮<br>Efeito: +3 de ataque, +18 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Orbe do Equilíbrio')">
+                    <img src="https://th.bing.com/th/id/R.3ee6bab93e53abf2f3ca1f91f5ebc232?rik=YYOtsIBybT%2bSPQ&pid=ImgRaw&r=0" alt="Orbe do Equilíbrio" class="item-img">
+                    <p>Orbe do Equilíbrio ⚖️✨<br>Efeito: +6 de ataque, +10 de vida</p>
+                </div>
+            `;
+            document.getElementById("itemOptions1").innerHTML = itemOptions;
+            document.getElementById("itemOptions2").innerHTML = itemOptions; // Adicionando itens do Mago para o Jogador 2
+        }
+
+        function mostrarItensBarbaro(jogador) {
+            const itemOptions = `
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Machado do Berserker')">
+                    <img src="https://i.pinimg.com/736x/16/ad/61/16ad61f5d2442134df4a2265c2bbb230.jpg" alt="Machado do Berserker" class="item-img">
+                    <p>Machado do Berserker 🪓🔥<br>Efeito: +8 de ataque, +5 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Armadura de Ferro Bruto')">
+                    <img src="https://th.bing.com/th/id/OIP.aAEadlEAF3IUv-ahwZyhfAAAAA?rs=1&pid=ImgDetMain" alt="Armadura de Ferro Bruto" class="item-img">
+                    <p>Armadura de Ferro Bruto 🛡️💪<br>Efeito: +3 de ataque, +15 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Espada dos Clãs Perdidos')">
+                    <img src="https://th.bing.com/th/id/OIP.kzZrUu442yyFxWNxxuef_AAAAA?rs=1&pid=ImgDetMain" alt="Espada dos Clãs Perdidos" class="item-img">
+                    <p>Espada dos Clãs Perdidos ⚔️<br>Efeito: +5 de ataque, +10 de vida</p>
+                </div>
+            `;
+            document.getElementById("itemOptions1").innerHTML = itemOptions;
+            document.getElementById("itemOptions2").innerHTML = itemOptions; // Adicionando itens do Bárbaro para o Jogador 2
+        }
+
+        function mostrarItensGigante(jogador) {
+            const itemOptions = `
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Martelo da Devastação')">
+                    <img src="https://th.bing.com/th/id/OIP.qAaYURWNp02Ze8I6ciJTygHaHa?rs=1&pid=ImgDetMain" alt="Martelo da Devastação" class="item-img">
+                    <p>Martelo da Devastação 🔨<br>Efeito: +10 de ataque, +5 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Colete de Gigante')">
+                    <img src="https://zilliongamer.com/uploads/league-of-legends-wild-rift/items/force-of-nature.jpg" alt="Colete de Gigante" class="item-img">
+                    <p>Colete de Gigante 🏰🛡️<br>Efeito: +4 de ataque, +20 de vida</p>
+                </div>
+                <div class="choose-btn" onclick="escolherItem(${jogador}, 'Escudo Rochoso')">
+                    <img src="https://th.bing.com/th/id/OIP.vllK1C_rvoDEzQosFQFDwQHaHa?rs=1&pid=ImgDetMain" alt="Escudo Rochoso" class="item-img">
+                    <p>Escudo Rochoso 🛡️🔩<br>Efeito: +6 de ataque, +12 de vida</p>
+                </div>
+            `;
+            document.getElementById("itemOptions1").innerHTML = itemOptions;
+            document.getElementById("itemOptions2").innerHTML = itemOptions; // Adicionando itens do Gigante para o Jogador 2
+        }
+
+        function escolherItem(jogador, item) {
+            if (jogador === 1) {
+                itemEscolhido1 = item;
+                document.getElementById("chooseItem").style.display = "none";
+                document.getElementById("choosePlayer2").style.display = "block";
+            } else {
+                itemEscolhido2 = item;
+                aplicarItem(jogador1, itemEscolhido1);
+                aplicarItem(jogador2, itemEscolhido2);
+                document.getElementById("chooseItem2").style.display = "none";
+                alert("Ambos os jogadores escolheram seus itens! O combate começa!");
+                iniciarRodada();
+            }
+        }
+
+        function aplicarItem(personagem, item) {
+            if (item === "Cajado do Inferno") {
+                personagem.ataque += 9;
+                personagem.vida += 4;
+            } else if (item === "Manto Arcano") {
+                personagem.ataque += 3;
+                personagem.vida += 18;
+            } else if (item === "Orbe do Equilíbrio") {
+                personagem.ataque += 6;
+                personagem.vida += 10;
+            } else if (item === "Machado do Berserker") {
+                personagem.ataque += 8;
+                personagem.vida += 5;
+            } else if (item === "Armadura de Ferro Bruto") {
+                personagem.ataque += 3;
+                personagem.vida += 15;
+            } else if (item === "Espada dos Clãs Perdidos") {
+                personagem.ataque += 5;
+                personagem.vida += 10;
+            } else if (item === "Martelo da Devastação") {
+                personagem.ataque += 10;
+                personagem.vida += 5;
+            } else if (item === "Colete de Gigante") {
+                personagem.ataque += 4;
+                personagem.vida += 20;
+            } else if (item === "Escudo Rochoso") {
+                personagem.ataque += 6;
+                personagem.vida += 12;
+            }
+            atualizarStatus();
+        }
+
+        function atualizarStatus() {
+            document.getElementById("status1").textContent = `Jogador 1 - Vida: ${jogador1.vida} | Ataque: ${jogador1.ataque}`;
+            document.getElementById("status2").textContent = `Jogador 2 - Vida: ${jogador2.vida} | Ataque: ${jogador2.ataque}`;
+        }
+
+        function rolarDado() {
+            return Math.floor(Math.random() * 20) + 1; // Rola um dado de 20 lados
+        }
+
+        function iniciarRodada() {
+            document.getElementById("actionContainer").style.display = "block";
+            document.getElementById("currentPlayer").textContent = `Rodada: Jogador ${jogadorAtual}`;
+        }
+
+        function realizarAcao(acao, jogador) {
+            if (jogador === 1) {
+                if (acao === 'atacar') {
+                    atacar(1);
+                } else if (acao === 'curar') {
+                    curar(1);
+                }
+                jogadorAtual = 2; // Passa a vez para o jogador 2
+            } else {
+                if (acao === 'atacar') {
+                    atacar(2);
+                } else if (acao === 'curar') {
+                    curar(2);
+                }
+                jogadorAtual = 1; // Passa a vez para o jogador 1
+            }
+
+            // Verifica se ambos os jogadores estão vivos
+            if (!jogador1.estaVivo() || !jogador2.estaVivo()) {
+                alert((jogador1.estaVivo() ? "Jogador 1" : "Jogador 2") + " venceu!");
+                document.getElementById("actionContainer").style.display = "none"; // Esconde o menu de ações
+                return; // Finaliza o jogo se alguém venceu
+            }
+
+            // Se ambos os jogadores estão vivos, inicia uma nova rodada
+            alert(`Iniciando a próxima rodada!`);
+            iniciarRodada(); // Reinicia a rodada
+        }
+
+        function atacar(jogador) {
+            let atacante = jogador === 1 ? jogador1 : jogador2;
+            let oponente = jogador === 1 ? jogador2 : jogador1;
+
+            if (atacante.estaVivo() && oponente.estaVivo()) {
+                let resultadoDado = rolarDado();
+                let dano = atacante.ataque;
+
+                // Reproduz o efeito sonoro de ataque
+                const ataqueAudio = new Audio('https://www.soundjay.com/button/sounds/button-3.mp3'); // Exemplo de link direto
+                ataqueAudio.play();
+
+                if (resultadoDado < 13) {
+                    alert(`Jogador ${jogador} atacou, mas falhou! (Rolou ${resultadoDado} no dado)`);
+                    return; // Ataque falhou
+                } else if (resultadoDado > 17) {
+                    dano *= 1.5; // Dano crítico
+                    alert(`Jogador ${jogador} fez um ataque crítico! (Rolou ${resultadoDado} no dado)`);
+                } else {
+                    alert(`Jogador ${jogador} atacou com sucesso! (Rolou ${resultadoDado} no dado)`);
+                }
+
+                oponente.reduzirVida(dano);
+                atualizarStatus();
+            }
+        }
+
+        function curar(jogador) {
+            let curador = jogador === 1 ? jogador1 : jogador2;
+            let resultadoDado = rolarDado();
+
+            // Reproduz o efeito sonoro de cura
+            const curaAudio = new Audio('https://www.myinstants.com/pt/instant/vine-boom-sound-70972/'); // Exemplo de link direto
+            curaAudio.play();
+
+            if (resultadoDado < 13) {
+                alert(`Jogador ${jogador} tentou curar, mas falhou! (Rolou ${resultadoDado} no dado)`);
+                return; // Cura falhou, mas a vida não é reduzida
+            } else if (resultadoDado > 17) {
+                curador.vida += 30; // Cura 30 pontos de vida
+                if (curador.vida > 150) curador.vida = 150; // Limite máximo de vida
+                alert(`Jogador ${jogador} curou 30 pontos de vida! (Rolou ${resultadoDado} no dado)`);
+            } else {
+                curador.vida += 15; // Cura 15 pontos de vida
+                if (curador.vida > 150) curador.vida = 150; // Limite máximo de vida
+                alert(`Jogador ${jogador} curou 15 pontos de vida! (Rolou ${resultadoDado} no dado)`);
+            }
+
+            atualizarStatus();
+        }
+
+        atualizarStatus();
+    </script>
+</body>
+</html>
